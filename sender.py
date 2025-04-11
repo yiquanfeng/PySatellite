@@ -11,6 +11,7 @@ sender_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sender_socket.connect((relay_host, relay_port))
 
 data = 'hello world'
+# 八位二进制编码
 encoded_data = ''.join((format(ord(char), '08b')) for char in data)
 
 message = f"receiver_host:{receiver_host},receiver_port:{receiver_port},data:{encoded_data}"
