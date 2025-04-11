@@ -3,4 +3,7 @@ bin/
 lib/
 lib64/
 share/
-/pyvenv.cfg
+pyvenv.cfg
+Include/
+Lib/
+Scripts/
