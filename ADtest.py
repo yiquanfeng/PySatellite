@@ -62,6 +62,17 @@ plt.xlabel('Time (s)')
 plt.ylabel('Amplitude')
 plt.legend()
 
+def convert_to_binary_array(frames):
+    binary_list = []
+    for frame in frames:
+        for num in frame:
+            # 将数字转换为 8 位二进制字符串
+            binary_str = '{:08b}'.format(int(num))
+            # 将二进制字符串拆分为单个字符并转换为整数
+            binary_digits = [int(digit) for digit in binary_str]
+            binary_list.extend(binary_digits)
+    return np.array(binary_list)
+
 ## 量化
 bit_depth = 8  
 # 模拟信号的电压范围
@@ -75,12 +86,17 @@ quantized_signal = np.round((sample_signal - voltage_range[0]) / step_size)
 # 确保量化后的值在有效范围内
 quantized_signal = np.clip(quantized_signal, 0, quantization_levels - 1)
 
-frames_tmp = [quantized_signal[i:i+128] for i in range(0, len(quantized_signal), 10)]
+frames = [quantized_signal[i:i+128] for i in range(0, 10)]
 
-frames = [[hex(int(num)) for num in frame] for frame in frames_tmp]
+# frames = [[hex(int(num)) for num in frame] for frame in frames_tmp]
+bin_frames = convert_to_binary_array(frames)
+bin_frames = bin_frames.reshape(10, 1024)
 
-for i, group in enumerate(frames[:5]):
+for i, group in enumerate(bin_frames[:]):
     print(f"第 {i + 1} 组: {group}")
+
+def get_frame():
+    return bin_frames
 
 plt.subplot(3, 1, 3)
 plt.stem(sample_t, quantized_signal, label='Quantized Signal')
@@ -89,6 +105,7 @@ plt.xlabel('Time (s)')
 plt.ylabel('Quantized Value')
 plt.legend()
 print(len(quantized_signal))
+print(len(bin_frames))
 plt.show()
 
 # DA convert
@@ -110,11 +127,13 @@ new_time_points = np.linspace(0, 0.1, 1280, endpoint=False)
 analog_signal = f(new_time_points)  
 
 # 绘制模拟信号
-plt.subplot(2, 1, 2)
-plt.plot(new_time_points, analog_signal, label='Analog Signal', color='orange')
-plt.title('Analog Signal (After DA Conversion)')
-plt.xlabel('Time (s)')
-plt.ylabel('Amplitude')
-plt.legend()
+# plt.subplot(2, 1, 2)
+# plt.plot(new_time_points, analog_signal, label='Analog Signal', color='orange')
+# plt.title('Analog Signal (After DA Conversion)')
+# plt.xlabel('Time (s)')
+# plt.ylabel('Amplitude')
+# plt.legend()
 
-plt.show()
+
+# plt.show()
+
