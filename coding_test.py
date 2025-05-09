@@ -133,7 +133,8 @@ class TurboEncoderDecoder:
             解码后的二进制数据字符串
         """
         decoded_frames = []
-        for frame in received_signal:
+        data = np.array(received_signal)
+        for frame in data:
             if len(frame) != 3 * self.interleaver_size:
                 raise ValueError("接收信号长度应为原始数据的3倍")
                 
