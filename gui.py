@@ -14,32 +14,32 @@ from PyQt5.QtGui import QPixmap, QFont
 
 import ADtest
 import text
+import sound
 
-# class AudioProcessingWorker(QObject):
-#     """用于处理音频的工作线程"""
-#     finished = pyqtSignal(tuple)  # 成功时发出信号(y, sr)
-#     error = pyqtSignal(str)       # 错误时发出信号(错误信息)
-#     progress = pyqtSignal(int)    # 进度信号
+class AudioProcessingWorker(QObject):
+    """用于处理音频的工作线程"""
+    finished = pyqtSignal(tuple)  # 成功时发出信号(y, sr)
+    error = pyqtSignal(str)       # 错误时发出信号(错误信息)
+    progress = pyqtSignal(int)    # 进度信号
     
-#     def __init__(self, filename):
-#         super().__init__()
-#         self.filename = filename
+    def __init__(self, filename):
+        super().__init__()
+        self.filename = filename
         
-#     def process_audio(self):
-#         try:
-#             # 使用librosa加载音频，但限制为前30秒
-#             import librosa
-#             y, sr = librosa.load(self.filename, sr=None, duration=30)
+    def process_audio(self):
+        try:
+            # 使用librosa加载音频，但限制为前30秒
+            import librosa
+            y, sr = librosa.load(self.filename, sr=None, duration=30)
             
-#             # 如果是立体声，转换为单声道用于显示
-#             if y.ndim > 1:
-#                 y = np.mean(y, axis=1)
+            # 如果是立体声，转换为单声道用于显示
+            if y.ndim > 1:
+                y = np.mean(y, axis=1)
                 
-#             self.finished.emit((y, sr))
+            self.finished.emit((y, sr))
             
-#         except Exception as e:
-#             self.error.emit(str(e))
-encoded_text = ""
+        except Exception as e:
+            self.error.emit(str(e))
 
 
 class SatelliteCommunicationSimulator(QMainWindow):
@@ -93,7 +93,7 @@ class SatelliteCommunicationSimulator(QMainWindow):
         
         self.stageComboBox = QComboBox()
         self.stageComboBox.setStyleSheet("padding: 5px;")
-        stages = ["AD/DA转换", "编解码", "协议层", "调制解调", "模拟信道"]
+        stages = ["AD转换", "DA转换", "编码", '解码', "协议层", '解析协议', "调制", "解调", "模拟信道"]
         self.stageComboBox.addItems(stages)
         self.stageComboBox.currentIndexChanged.connect(self.stageChanged)
         
@@ -340,9 +340,9 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 self.uploadButton.setEnabled(False)
                 
                 # 创建工作线程处理音频
-                # self.audio_worker = AudioProcessingWorker(fileName)
-                # self.thread = QThread()
-                # self.audio_worker.moveToThread(self.thread)
+                self.audio_worker = AudioProcessingWorker(fileName)
+                self.thread = QThread()
+                self.audio_worker.moveToThread(self.thread)
                 
                 # 连接信号和槽
                 self.thread.started.connect(self.audio_worker.process_audio)
@@ -360,128 +360,93 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 self.currentFile = fileName
                 self.currentFileType = "audio"
     
-    # def onAudioProcessed(self, data):
-    #     """音频处理完成后的回调函数"""
-    #     y, sr = data
-    #     try:
-    #         # 清除之前的图表
-    #         self.audioFigure.clear()
+    def onAudioProcessed(self, data):
+        """音频处理完成后的回调函数"""
+        y, sr = data
+        try:
+            # 清除之前的图表
+            self.audioFigure.clear()
             
-    #         # 创建新的子图
-    #         ax = self.audioFigure.add_subplot(111)
+            # 创建新的子图
+            ax = self.audioFigure.add_subplot(111)
             
-    #         # 生成时间轴
-    #         time = np.arange(0, len(y)) / sr
+            # 生成时间轴
+            time = np.arange(0, len(y[:sr*3])) / sr
             
-    #         # 绘制波形图
-    #         ax.plot(time, y, color='#3498db')
-    #         ax.set_title(f'音频波形: {os.path.basename(self.currentFile)}')
-    #         ax.set_xlabel('时间 (秒)')
-    #         ax.set_ylabel('振幅')
-    #         ax.grid(True, linestyle='--', alpha=0.7)
+            # 绘制波形图
+            ax.plot(time, y[:sr*3], color='#3498db')
+            ax.set_title(f'音频波形: {os.path.basename(self.currentFile)}')
+            ax.set_xlabel('时间 (秒)')
+            ax.set_ylabel('振幅')
+            ax.grid(True, linestyle='--', alpha=0.7)
             
-    #         # 添加音频信息
-    #         duration = len(y) / sr
-    #         self.audioInfoLabel.setText(
-    #             f"文件: {os.path.basename(self.currentFile)} | "
-    #             f"采样率: {sr} Hz | "
-    #             f"时长: {duration:.2f} 秒"
-    #         )
+            # 添加音频信息
+            duration = len(y) / sr / 10
+            self.audioInfoLabel.setText(
+                f"文件: {os.path.basename(self.currentFile)} | "
+                f"采样率: {sr} Hz | "
+                f"时长: {duration:.2f} 秒"
+            )
             
-    #         # 调整图表布局
-    #         self.audioFigure.tight_layout()
+            # 调整图表布局
+            self.audioFigure.tight_layout()
             
-    #         # 更新画布
-    #         self.audioCanvas.draw()
+            # 更新画布
+            self.audioCanvas.draw()
             
-    #         self.statusLabel.setText(f"已上传音频: {os.path.basename(self.currentFile)}")
+            self.statusLabel.setText(f"已上传音频: {os.path.basename(self.currentFile)}")
             
-    #     except Exception as e:
-    #         self.onAudioProcessError(f"绘制音频波形图失败: {str(e)}")
+        except Exception as e:
+            self.onAudioProcessError(f"绘制音频波形图失败: {str(e)}")
     
-    # def onAudioProcessError(self, error_message):
-    #     """音频处理出错时的回调函数"""
-    #     # 显示错误信息
-    #     self.audioFigure.clear()
-    #     ax = self.audioFigure.add_subplot(111)
-    #     ax.text(0.5, 0.5, f"无法加载音频文件:\n{error_message}", 
-    #             horizontalalignment='center', verticalalignment='center',
-    #             transform=ax.transAxes, color='red')
-    #     self.audioCanvas.draw()
+    def onAudioProcessError(self, error_message):
+        """音频处理出错时的回调函数"""
+        # 显示错误信息
+        self.audioFigure.clear()
+        ax = self.audioFigure.add_subplot(111)
+        ax.text(0.5, 0.5, f"无法加载音频文件:\n{error_message}", 
+                horizontalalignment='center', verticalalignment='center',
+                transform=ax.transAxes, color='red')
+        self.audioCanvas.draw()
         
-    #     self.audioInfoLabel.setText("音频加载失败")
-    #     self.statusLabel.setText("音频处理失败")
+        self.audioInfoLabel.setText("音频加载失败")
+        self.statusLabel.setText("音频处理失败")
         
-    #     # 显示错误对话框
-    #     QMessageBox.warning(self, "音频处理错误", f"处理音频文件时出错:\n{error_message}")
+        # 显示错误对话框
+        QMessageBox.warning(self, "音频处理错误", f"处理音频文件时出错:\n{error_message}")
     
     def stageChanged(self):
         selected_stage = self.stageComboBox.currentText()
         self.statusLabel.setText(f"已选择通信阶段: {selected_stage}")
 
-    # def display_signal_processing(self):
-    #     try:
-    #         """显示信号处理图表"""
-    #         # 首先调用信号处理模块生成测试信号
-    #         ADtest.music_path_my = self.currentFile
-    #         ADtest.generate_test_signal()
-
-    #         # 获取图形对象
-    #         fig = ADtest.create_signal_figure()
-
-    #         # 创建画布
-    #         canvas = FigureCanvas(fig)
-
-    #         # 获取现有布局
-    #         existing_layout = self.rightDisplayFrame.layout()
-
-    #         # 清除现有布局中的所有部件
-    #         while existing_layout.count():
-    #             item = existing_layout.takeAt(0)
-    #             widget = item.widget()
-    #             if widget:
-    #                 widget.deleteLater()
-
-    #         # 添加标题
-    #         rightTitleLabel = QLabel("AD/DA转换模拟")
-    #         rightTitleLabel.setAlignment(Qt.AlignCenter)
-    #         rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
-    #         rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
-
-    #         # 将新部件添加到现有布局
-    #         existing_layout.addWidget(rightTitleLabel)
-    #         existing_layout.addWidget(canvas)
-
-    #         # 更新状态
-    #         self.statusLabel.setText("AD/DA转换模拟: 已显示信号处理图表")
-
-    #     except Exception as e:
-    #         QMessageBox.warning(self, "错误", f"显示信号处理图表时出错: {str(e)}")
+    def get_binary_frames(self):
+        _, quan = sound.SoundOperation.sound_ADtrans(self.currentFile)
+        return quan
     def get_encoded_text(self) -> str:
         text_tmp = self.textEditArea.toPlainText()
         encoded_text = text.TextOperation.text_encode(text_tmp)
         return encoded_text
     
+    def get_decoded_text(self) -> str:
+        decoded_text = text.TextOperation.text_decode(self.get_encoded_text())
+        return decoded_text
     def get_framed_text(self) -> str:
         return text.TextOperation.text_protocol(self.get_encoded_text())
-
+    def get_deframed_text(self) -> str:
+        return text.TextOperation.text_deprotocol(self.get_framed_text())
     def get_modulated_text(self):
-        return text.TextOperation.text_modulate(self.get_encoded_text(), 10)
+        return text.TextOperation.text_modulate(self.get_framed_text(), 10)
+    def get_demodulated_text(self):
+        fig, received_signal = self.get_channel_text()
+        return text.TextOperation.text_demodulate(received_signal)
+    def get_channel_text(self):
+        fig, signal = self.get_modulated_text()
+        return text.TextOperation.text_channel(signal)
     
     def display_data(self, stage:str, index:int):
         canvas = None
         rightDisplayContent = None
-        if(stage == 'protocol'):
-            if(index == 0):
-                rightDisplayContent = QTextEdit()
-                rightDisplayContent.setReadOnly(True)
-                rightDisplayContent.setStyleSheet("padding: 10px;")
-                rightDisplayContent.setPlainText(self.get_framed_text())
-                rightTitleLabel = QLabel("protocol info")
-                rightTitleLabel.setAlignment(Qt.AlignCenter)
-                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
-                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
-        elif(stage == "encode"):
+        if(stage == "encode"):
             if(index == 0):
                 rightDisplayContent = QTextEdit()
                 rightDisplayContent.setReadOnly(True)
@@ -491,11 +456,82 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setAlignment(Qt.AlignCenter)
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+        elif(stage == 'adtrans'):
+            if(index == 2):
+                fig, _ = sound.SoundOperation.sound_ADtrans(self.currentFile)
+                # 创建画布
+                canvas = FigureCanvas(fig)
+                existing_layout = self.rightDisplayFrame.layout()
+                rightTitleLabel = QLabel("AD转换模拟")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+                self.statusLabel.setText("AD转换模拟: 已显示信号处理图表")
+        elif(stage == 'datrans'):
+            if(index == 2):
+                fig, _, _ = sound.SoundOperation.sound_DAtrans(self.get_binary_frames())
+                # 创建画布
+                canvas = FigureCanvas(fig)
+                existing_layout = self.rightDisplayFrame.layout()
+                rightTitleLabel = QLabel("DA转换模拟")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+                self.statusLabel.setText("DA转换模拟: 已显示信号处理图表")
+        elif(stage == 'decode'):
+            if(index == 0):
+                rightDisplayContent = QTextEdit()
+                rightDisplayContent.setReadOnly(True)
+                rightDisplayContent.setStyleSheet("padding: 10px;")
+                rightDisplayContent.setPlainText(self.get_decoded_text())
+                rightTitleLabel = QLabel("decode info")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+        elif(stage == 'protocol'):
+            if(index == 0):
+                rightDisplayContent = QTextEdit()
+                rightDisplayContent.setReadOnly(True)
+                rightDisplayContent.setStyleSheet("padding: 10px;")
+                rightDisplayContent.setPlainText(self.get_framed_text())
+                rightTitleLabel = QLabel("protocol info")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+        elif(stage == 'deprotocol'):
+            if(index == 0):
+                rightDisplayContent = QTextEdit()
+                rightDisplayContent.setReadOnly(True)
+                rightDisplayContent.setStyleSheet("padding: 10px;")
+                rightDisplayContent.setPlainText(self.get_deframed_text())
+                rightTitleLabel = QLabel("deprotocol info")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
         elif(stage == "modulate"):
             if(index == 0):
-                fig = self.get_modulated_text()
+                fig, _ = self.get_modulated_text()
                 canvas = FigureCanvas(fig)
                 rightTitleLabel = QLabel("modulate info")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+        elif(stage == "demodulate"):
+            if(index == 0):
+                fig, string = self.get_demodulated_text()
+                rightDisplayContent = QTextEdit()
+                rightDisplayContent.setReadOnly(True)
+                rightDisplayContent.setStyleSheet("padding: 10px;")
+                rightDisplayContent.setPlainText(string)
+                rightTitleLabel = QLabel("demodulate info")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+        elif(stage == "channel"):
+            if(index == 0):
+                fig, _ = self.get_channel_text()
+                canvas = FigureCanvas(fig)
+                rightTitleLabel = QLabel("channel info")
                 rightTitleLabel.setAlignment(Qt.AlignCenter)
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
@@ -534,20 +570,34 @@ class SatelliteCommunicationSimulator(QMainWindow):
         self.statusLabel.setText(f"正在模拟通信过程: {selected_stage}...")
 
         # 如果选择的是AD/DA转换，则显示信号处理图表
-        # if selected_stage == "AD/DA转换":
-        #     self.display_signal_processing()
-        #     return
-
-        if selected_stage == "编解码":
+        if selected_stage == "AD转换":
+            self.display_data("adtrans", current_type_index)
+            return
+        if selected_stage == "DA转换":
+            self.display_data("datrans", current_type_index)
+            return
+        if selected_stage == "编码":
             self.display_data("encode", 0)
+            return
+        if selected_stage == "解码":
+            self.display_data("decode", 0)
             return
         if selected_stage == "协议层":
             self.display_data("protocol", 0)
             return
-        if selected_stage == "调制解调":
+        if selected_stage == "解析协议":
+            self.display_data("deprotocol", 0)
+            return
+        if selected_stage == "调制":
             self.display_data("modulate", 0)
             return
-        
+        if selected_stage == "解调":
+            self.display_data("demodulate", 0)
+            return
+        if selected_stage == "模拟信道":
+            self.display_data("channel", 0)
+            return
+
         # 获取当前数据类型和内容描述
         data_type = self.uploadTypeComboBox.currentText()
         data_content = ""
@@ -561,21 +611,21 @@ class SatelliteCommunicationSimulator(QMainWindow):
          data_content = os.path.basename(self.currentFile) if self.currentFile else "当前音频"
     
     # 在右侧显示模拟信息
-        self.rightDisplayContent.setHtml(f"""
-        <div style="padding: 10px;">
-            <h3 style="text-align: center; color: #0056b3;">模拟: {selected_stage}</h3>
-            <hr/>
-         <p><b>数据类型:</b> {data_type}</p>
-            <p><b>数据内容:</b> {data_content}</p>
-        <p><b>状态:</b> 模拟进行中...</p>
-        <hr/>
-        <p>这里将显示模拟过程的详细信息</p>
-            <p style="color: #666; margin-top: 15px;">
-                模拟流程包括发送端数据处理、卫星转发和接收端信号恢复等步骤。
-                通过观察每个阶段的数据变化，可以深入理解卫星通信系统的工作原理。
-            </p>
-        </div>
-        """)
+        # self.rightDisplayContent.setHtml(f"""
+        # <div style="padding: 10px;">
+        #     <h3 style="text-align: center; color: #0056b3;">模拟: {selected_stage}</h3>
+        #     <hr/>
+        #  <p><b>数据类型:</b> {data_type}</p>
+        #     <p><b>数据内容:</b> {data_content}</p>
+        # <p><b>状态:</b> 模拟进行中...</p>
+        # <hr/>
+        # <p>这里将显示模拟过程的详细信息</p>
+        #     <p style="color: #666; margin-top: 15px;">
+        #         模拟流程包括发送端数据处理、卫星转发和接收端信号恢复等步骤。
+        #         通过观察每个阶段的数据变化，可以深入理解卫星通信系统的工作原理。
+        #     </p>
+        # </div>
+        # """)
 
 def main():
     app = QApplication(sys.argv)
