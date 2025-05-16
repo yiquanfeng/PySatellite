@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QLabel,
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from PyQt5.QtGui import QPixmap, QFont
 
-import ADtest
 import text
 import sound
 
@@ -577,7 +576,7 @@ class SatelliteCommunicationSimulator(QMainWindow):
             self.display_data("datrans", current_type_index)
             return
         if selected_stage == "编码":
-            self.display_data("encode", 0)
+            self.display_data("encode", current_type_index)
             return
         if selected_stage == "解码":
             self.display_data("decode", 0)
