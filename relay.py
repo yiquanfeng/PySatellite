@@ -42,7 +42,7 @@ while True:
 
 
             # 模拟信号传输损耗（丢包）
-            if random.random() < 0.1:  # 10% 的丢包率
+            if random.random() < 0.001:  # 0.1% 的丢包率
                 print("Packet lost.")
             else:
                 # 转发数据
