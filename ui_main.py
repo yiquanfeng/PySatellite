@@ -42,34 +42,34 @@ def return_figures():
         _modulate = moderate_test.AmplitudeModem()
         _protocol = protocol.ProtocolHandler()
 
-        fig_ad, quantized_signal, frames = ADtest.SoundOperation.sound_ADtrans("/home/hyrozine/py_work/BAK.wav")
-        print(f"frames:{len(frames[0])}")
+        fig_ad, quantized_signal, frames = ADtest.SoundOperation.sound_ADtrans("./BAK.wav")
+        # print(f"frames:{len(frames[0])}")
 
         figures.append(fig_ad)
 
-        print("数据处理流程开始...")
+        # print("数据处理流程开始...")
         encode_bits = turbo.encode(frames)
-        print(f"ecode_bits_len:{len(encode_bits[0])}")
+        # print(f"ecode_bits_len:{len(encode_bits[0])}")
 
         send_p = _protocol.build_frames(encode_bits)
-        print(f"send_p_len:{len(send_p[0])}")
+        # print(f"send_p_len:{len(send_p[0])}")
 
         _modulate_bits = _modulate.modulate(send_p)
-        print(f"modulate_bits_len:{len(_modulate_bits[0])}")
+        # print(f"modulate_bits_len:{len(_modulate_bits[0])}")
 
         demodulate_bits = _modulate.demodulate(_modulate_bits)
-        print(f"demodulate_bits_len:{len(demodulate_bits[0])}")
+        # print(f"demodulate_bits_len:{len(demodulate_bits[0])}")
 
         recieve_p = _protocol.parse_frames(demodulate_bits)
-        print(f"recieve_p_len:{len(recieve_p[0])}")
+        # print(f"recieve_p_len:{len(recieve_p[0])}")
 
         decode_bits = turbo.decode(recieve_p)
-        print(f"decode_bits_len:{len(decode_bits[0])}")
+        # print(f"decode_bits_len:{len(decode_bits[0])}")
 
         fig_da, filtered_signal, t_reconstructed = ADtest.SoundOperation.sound_DAtrans(decode_bits)
-        print(f"da_bits:{len(filtered_signal)}")
+        # print(f"da_bits:{len(filtered_signal)}")
 
-        print("数据处理流程完成")
+        # print("数据处理流程完成")
 
         # 准备要绘制的数据
         data_to_plot = {
@@ -81,7 +81,7 @@ def return_figures():
             'Decoded Bits': decode_bits,
         }
         
-        print("开始绘制波形图...")
+        # print("开始绘制波形图...")
         for title, data in data_to_plot.items():
             fig = plot_single_waveform(title, data)  # 获取 Figure 对象
             figures.append(fig)  # 存储 Figure

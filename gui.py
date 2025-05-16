@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QLabel,
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from PyQt5.QtGui import QPixmap, QFont
 
-import ADtest
+import ui_main
 import text
 import sound
 
@@ -446,6 +446,7 @@ class SatelliteCommunicationSimulator(QMainWindow):
     def display_data(self, stage:str, index:int):
         canvas = None
         rightDisplayContent = None
+        
         if(stage == "encode"):
             if(index == 0):
                 rightDisplayContent = QTextEdit()
@@ -456,28 +457,47 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setAlignment(Qt.AlignCenter)
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
-        elif(stage == 'adtrans'):
             if(index == 2):
-                fig, _ = sound.SoundOperation.sound_ADtrans(self.currentFile)
-                # 创建画布
+                fig_all = ui_main.return_figures()
+                fig = fig_all[1]
                 canvas = FigureCanvas(fig)
                 existing_layout = self.rightDisplayFrame.layout()
-                rightTitleLabel = QLabel("AD转换模拟")
+                rightTitleLabel = QLabel("encode info")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+                self.statusLabel.setText("AD转换模拟: 已显示信号处理图表")
+        elif(stage == 'adtrans'):
+            if(index == 2):
+                fig_all = ui_main.return_figures()
+                fig = fig_all[0]
+                canvas = FigureCanvas(fig)
+                existing_layout = self.rightDisplayFrame.layout()
+                rightTitleLabel = QLabel("ad info")
                 rightTitleLabel.setAlignment(Qt.AlignCenter)
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
                 self.statusLabel.setText("AD转换模拟: 已显示信号处理图表")
         elif(stage == 'datrans'):
             if(index == 2):
-                fig, _, _ = sound.SoundOperation.sound_DAtrans(self.get_binary_frames())
-                # 创建画布
+                fig_all = ui_main.return_figures()
+                fig = fig_all[6]
                 canvas = FigureCanvas(fig)
                 existing_layout = self.rightDisplayFrame.layout()
-                rightTitleLabel = QLabel("DA转换模拟")
+                rightTitleLabel = QLabel("da info")
                 rightTitleLabel.setAlignment(Qt.AlignCenter)
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
-                self.statusLabel.setText("DA转换模拟: 已显示信号处理图表")
+                self.statusLabel.setText("AD转换模拟: 已显示信号处理图表")
+                # fig, _, _ = sound.SoundOperation.sound_DAtrans(self.get_binary_frames())
+                # # 创建画布
+                # canvas = FigureCanvas(fig)
+                # existing_layout = self.rightDisplayFrame.layout()
+                # rightTitleLabel = QLabel("DA转换模拟")
+                # rightTitleLabel.setAlignment(Qt.AlignCenter)
+                # rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                # rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+                # self.statusLabel.setText("DA转换模拟: 已显示信号处理图表")
         elif(stage == 'decode'):
             if(index == 0):
                 rightDisplayContent = QTextEdit()
@@ -488,6 +508,16 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setAlignment(Qt.AlignCenter)
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+            if(index == 2):
+                fig_all = ui_main.return_figures()
+                fig = fig_all[5]
+                canvas = FigureCanvas(fig)
+                existing_layout = self.rightDisplayFrame.layout()
+                rightTitleLabel = QLabel("decode info")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+                self.statusLabel.setText("AD转换模拟: 已显示信号处理图表")
         elif(stage == 'protocol'):
             if(index == 0):
                 rightDisplayContent = QTextEdit()
@@ -498,6 +528,16 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setAlignment(Qt.AlignCenter)
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+            if(index == 2):
+                fig_all = ui_main.return_figures()
+                fig = fig_all[2]
+                canvas = FigureCanvas(fig)
+                existing_layout = self.rightDisplayFrame.layout()
+                rightTitleLabel = QLabel("protocol info")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+                self.statusLabel.setText("AD转换模拟: 已显示信号处理图表")
         elif(stage == 'deprotocol'):
             if(index == 0):
                 rightDisplayContent = QTextEdit()
@@ -508,6 +548,16 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setAlignment(Qt.AlignCenter)
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+            if(index == 2):
+                fig_all = ui_main.return_figures()
+                fig = fig_all[5]
+                canvas = FigureCanvas(fig)
+                existing_layout = self.rightDisplayFrame.layout()
+                rightTitleLabel = QLabel("deprotocol info")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+                self.statusLabel.setText("AD转换模拟: 已显示信号处理图表")
         elif(stage == "modulate"):
             if(index == 0):
                 fig, _ = self.get_modulated_text()
@@ -516,6 +566,16 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setAlignment(Qt.AlignCenter)
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+            if(index == 2):
+                fig_all = ui_main.return_figures()
+                fig = fig_all[3]
+                canvas = FigureCanvas(fig)
+                existing_layout = self.rightDisplayFrame.layout()
+                rightTitleLabel = QLabel("modulate info")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+                self.statusLabel.setText("AD转换模拟: 已显示信号处理图表")
         elif(stage == "demodulate"):
             if(index == 0):
                 fig, string = self.get_demodulated_text()
@@ -527,6 +587,16 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setAlignment(Qt.AlignCenter)
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+            if(index == 2):
+                fig_all = ui_main.return_figures()
+                fig = fig_all[4]
+                canvas = FigureCanvas(fig)
+                existing_layout = self.rightDisplayFrame.layout()
+                rightTitleLabel = QLabel("demodulate info")
+                rightTitleLabel.setAlignment(Qt.AlignCenter)
+                rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
+                rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
+                self.statusLabel.setText("AD转换模拟: 已显示信号处理图表")
         elif(stage == "channel"):
             if(index == 0):
                 fig, _ = self.get_channel_text()
@@ -577,25 +647,25 @@ class SatelliteCommunicationSimulator(QMainWindow):
             self.display_data("datrans", current_type_index)
             return
         if selected_stage == "编码":
-            self.display_data("encode", 0)
+            self.display_data("encode", current_type_index)
             return
         if selected_stage == "解码":
-            self.display_data("decode", 0)
+            self.display_data("decode", current_type_index)
             return
         if selected_stage == "协议层":
-            self.display_data("protocol", 0)
+            self.display_data("protocol", current_type_index)
             return
         if selected_stage == "解析协议":
-            self.display_data("deprotocol", 0)
+            self.display_data("deprotocol", current_type_index)
             return
         if selected_stage == "调制":
-            self.display_data("modulate", 0)
+            self.display_data("modulate", current_type_index)
             return
         if selected_stage == "解调":
-            self.display_data("demodulate", 0)
+            self.display_data("demodulate", current_type_index)
             return
         if selected_stage == "模拟信道":
-            self.display_data("channel", 0)
+            self.display_data("channel", current_type_index)
             return
 
         # 获取当前数据类型和内容描述
