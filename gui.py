@@ -16,6 +16,9 @@ import ui_main
 import text
 import sound
 
+fig_all = ui_main.return_figures()
+
+
 class AudioProcessingWorker(QObject):
     """用于处理音频的工作线程"""
     finished = pyqtSignal(tuple)  # 成功时发出信号(y, sr)
@@ -458,7 +461,6 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
             if(index == 2):
-                fig_all = ui_main.return_figures()
                 fig = fig_all[1]
                 canvas = FigureCanvas(fig)
                 existing_layout = self.rightDisplayFrame.layout()
@@ -469,7 +471,6 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 self.statusLabel.setText("AD转换模拟: 已显示信号处理图表")
         elif(stage == 'adtrans'):
             if(index == 2):
-                fig_all = ui_main.return_figures()
                 fig = fig_all[0]
                 canvas = FigureCanvas(fig)
                 existing_layout = self.rightDisplayFrame.layout()
@@ -480,7 +481,6 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 self.statusLabel.setText("AD转换模拟: 已显示信号处理图表")
         elif(stage == 'datrans'):
             if(index == 2):
-                fig_all = ui_main.return_figures()
                 fig = fig_all[6]
                 canvas = FigureCanvas(fig)
                 existing_layout = self.rightDisplayFrame.layout()
@@ -509,7 +509,6 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
             if(index == 2):
-                fig_all = ui_main.return_figures()
                 fig = fig_all[5]
                 canvas = FigureCanvas(fig)
                 existing_layout = self.rightDisplayFrame.layout()
@@ -529,7 +528,6 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
             if(index == 2):
-                fig_all = ui_main.return_figures()
                 fig = fig_all[2]
                 canvas = FigureCanvas(fig)
                 existing_layout = self.rightDisplayFrame.layout()
@@ -549,7 +547,6 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
             if(index == 2):
-                fig_all = ui_main.return_figures()
                 fig = fig_all[5]
                 canvas = FigureCanvas(fig)
                 existing_layout = self.rightDisplayFrame.layout()
@@ -567,7 +564,6 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
             if(index == 2):
-                fig_all = ui_main.return_figures()
                 fig = fig_all[3]
                 canvas = FigureCanvas(fig)
                 existing_layout = self.rightDisplayFrame.layout()
@@ -588,7 +584,6 @@ class SatelliteCommunicationSimulator(QMainWindow):
                 rightTitleLabel.setFont(QFont("Arial", 12, QFont.Bold))
                 rightTitleLabel.setStyleSheet("color: #333; margin-bottom: 10px;")
             if(index == 2):
-                fig_all = ui_main.return_figures()
                 fig = fig_all[4]
                 canvas = FigureCanvas(fig)
                 existing_layout = self.rightDisplayFrame.layout()
