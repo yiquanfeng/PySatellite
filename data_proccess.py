@@ -6,7 +6,7 @@ def send_data_proccess():
     _modulate = moderate_test.AmplitudeModem()
     _protocol = protocol.ProtocolHandler()
 
-    frames = ADtest.get_frame()
+    fig, quantized_signal, frames = ADtest.SoundOperation.sound_ADtrans("/home/hyrozine/py_work/BAK.wav")
 
     encode_bits = turbo.encode(frames)
     print(f"ecode_bits_len:{len(encode_bits[0])}")
@@ -37,5 +37,8 @@ def recieve_data_proccess(modulate_bits):
     decode_bits = turbo.decode(recieve_p)
     print(f"decode_bits_len:{len(decode_bits[0])}")
 
-    return decode_bits
+    fig, filtered_signal, t_reconstructed = ADtest.SoundOperation.sound_DAtrans(decode_bits)
+    print(f"da_bits:{len(filtered_signal)}")
+
+    return filtered_signal
 
