@@ -37,9 +37,9 @@ class SoundOperation(object):
         quantized_signal = np.clip(quantized_index, 0, levels - 1).astype(int)
         
         # 4. 转二进制帧
-        frames = quantized_signal[:frame_size * 10].reshape(-1, frame_size)  # 取前10帧
-        binary_frames = np.array([[int(b) for b in f"{num:08b}"] for frame in frames for num in frame])
-        binary_frames = binary_frames.reshape(len(frames), -1)
+        # frames = quantized_signal[:frame_size * 10].reshape(-1, frame_size)  # 取前10帧
+        # binary_frames = np.array([[int(b) for b in f"{num:08b}"] for frame in frames for num in frame])
+        # binary_frames = binary_frames.reshape(len(frames), -1)
         
         # 创建画布和三个子图，共享x轴
         fig, axes = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
@@ -127,7 +127,7 @@ class SoundOperation(object):
         
         # 2. 量化信号
         axes[0].stem(t_quantized[:samples_in_3s], normalized_signal[:samples_in_3s], 'g', markerfmt='go', basefmt=" ")
-        axes[0].set_title(f'2. {bit_depth}位量化信号')
+        axes[0].set_title(f'2. 归一化信号')
         axes[0].grid(True, linestyle='--', alpha=0.7)
         
         # 3. 重建信号 (零阶保持)
